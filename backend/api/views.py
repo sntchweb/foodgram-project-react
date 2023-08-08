@@ -2,7 +2,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 
+from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (CreateRecipeSerializer, FavoriteRecipeSerializer,
                              IngredientSerializer, ReadRecipeSerializer,
                              SubscribeSerializer, TagSerializer,
@@ -20,9 +21,9 @@ from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
 from users.models import Subscription
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
@@ -135,10 +136,10 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-            methods=('post', 'delete'),
-            url_path='subscribe',
-            detail=True,
-            permission_classes=(IsAuthenticated,)
+        methods=('post', 'delete'),
+        url_path='subscribe',
+        detail=True,
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id=None):
         follow_obj = Subscription.objects.filter(
@@ -155,18 +156,18 @@ class CustomUserViewSet(UserViewSet):
             serializer = SubscribeSerializer(sub, context={'request': request})
             return Response(serializer.data, status=HTTP_201_CREATED)
         return Response(
-                'На одного пользователя нельзя подписаться дважды!',
-                status=HTTP_400_BAD_REQUEST
+            'На одного пользователя нельзя подписаться дважды!',
+            status=HTTP_400_BAD_REQUEST
         )
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class IngredientsViewSet(viewsets.ModelViewSet):
+class IngredientsViewSet(ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
