@@ -48,13 +48,13 @@ class Subscription(Model):
         on_delete=CASCADE,
         related_name='follower',
         verbose_name='Подписчик'
-        )
+    )
     author = ForeignKey(
         User,
         on_delete=CASCADE,
         related_name='following',
         verbose_name='Автор'
-        )
+    )
 
     class Meta:
         verbose_name = 'Подписка'

@@ -1,15 +1,13 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.serializers import (CharField, Field, ImageField,
-                                        IntegerField, ModelSerializer,
-                                        PrimaryKeyRelatedField, ReadOnlyField,
-                                        SerializerMethodField,
-                                        SlugRelatedField, ValidationError)
-from rest_framework.validators import UniqueTogetherValidator
-
 from recipes.models import (FavoriteRecipe, Ingredient, IngredientRecipe,
                             Recipe, ShoppingCart, Tag)
+from rest_framework.serializers import (CharField, IntegerField,
+                                        ModelSerializer,
+                                        PrimaryKeyRelatedField, ReadOnlyField,
+                                        SerializerMethodField, ValidationError)
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Subscription
 
 User = get_user_model()
@@ -123,7 +121,7 @@ class CreateRecipeSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         tags = validated_data.get('tags')
-        user = self.context.get('request').user
+        # user = self.context.get('request').user
         instance.name = validated_data.get('name')
         instance.image = validated_data.get('image')
         instance.text = validated_data.get('text')

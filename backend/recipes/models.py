@@ -217,4 +217,3 @@ class IngredientRecipe(Model):
 
     def __str__(self) -> str:
         return f'{self.ingredient} в {self.recipe}: {self.amount}'
-

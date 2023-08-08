@@ -1,10 +1,10 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import filters, mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
+from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
@@ -103,7 +103,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(total_sum=Sum('amount'))
         wishlist = ''
         for ingredient in ingredients:
-            wishlist += f'{ingredient["ingredient__name"]}: {ingredient["total_sum"]}'
+            wishlist += (f'{ingredient["ingredient__name"]}: '
+                         f'{ingredient["total_sum"]}')
             wishlist += f'{ingredient["ingredient__measurement_unit"]}.\n'
         response = HttpResponse(wishlist, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename=wishlist.txt'
