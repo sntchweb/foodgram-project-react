@@ -111,8 +111,8 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# STATIC_ROOT = BASE_DIR / 'collected_static'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
 
@@ -125,6 +125,10 @@ DJOSER = {
         'current_user': 'api.serializers.UserSerializer',
         'set_password': 'api.serializers.SetPasswordSerializer',
     },
+    'PERMISSIONS': {
+        'user': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
+        'user_list': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',)
+    }
 }
 
 LANGUAGE_CODE = 'ru'

@@ -116,8 +116,6 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = CustomPagination
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    # permission_classes = (AllowAny,)
 
     @action(
         methods=('get',),
@@ -174,7 +172,7 @@ class IngredientsViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Ingredient.objects.all()
-        name = self.request.query_params.get('name').lower()
+        name = self.request.query_params.get('name')
         if name is not None:
-            queryset = queryset.filter(name__istartswith=name)
+            queryset = queryset.filter(name__istartswith=name.lower())
         return queryset
