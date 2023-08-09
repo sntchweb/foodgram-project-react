@@ -211,17 +211,3 @@ class SubscribeSerializer(ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # breakpoint()
-        return {
-            'email': data['author']['email'],
-            'id': data['author']['id'],
-            'username': data['author']['username'],
-            'first_name': data['author']['first_name'],
-            'last_name': data['author']['last_name'],
-            'is_subscribed': data['author']['is_subscribed'],
-            'recipes': data['recipes'],
-            'recipes_count': data['recipes_count'],
-        }
