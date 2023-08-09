@@ -34,6 +34,29 @@ class RecipeViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def add_to_base(self, request, model, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        _, created = model.objects.get_or_create(
+            recipe=recipe, user=request.user
+        )
+        if created:
+            serializer = FavoriteRecipeSerializer(
+                recipe,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
+    def delete_from_base(self, user, model, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        databse_obj = model.objects.filter(
+            user=user, recipe=recipe
+        )
+        if not databse_obj.exists():
+            return Response(status=HTTP_400_BAD_REQUEST)
+        databse_obj.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
     @action(
         methods=('post', 'delete'),
         url_path='favorite',
@@ -41,26 +64,9 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
-            favorite_obj, created = FavoriteRecipe.objects.get_or_create(
-                user=request.user, recipe=recipe
-            )
-            if created:
-                serializer = FavoriteRecipeSerializer(
-                    recipe, context={'request': request}
-                )
-                return Response(serializer.data, status=HTTP_201_CREATED)
-            return Response(
-                'Рецепт уже в избранном', status=HTTP_400_BAD_REQUEST
-            )
-        favorite_obj = FavoriteRecipe.objects.filter(
-            user=request.user, recipe=recipe
-        )
-        if not favorite_obj.exists():
-            return Response(status=HTTP_400_BAD_REQUEST)
-        favorite_obj.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+            return self.add_to_base(request, FavoriteRecipe, pk)
+        return self.delete_from_base(request.user, FavoriteRecipe, pk)
 
     @action(
         methods=('post', 'delete'),
@@ -69,26 +75,9 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
-            shopping_cart_obj, created = ShoppingCart.objects.get_or_create(
-                user=request.user, recipe=recipe
-            )
-            if created:
-                serializer = FavoriteRecipeSerializer(
-                    recipe, context={'request': request}
-                )
-                return Response(serializer.data, status=HTTP_201_CREATED)
-            return Response(
-                'Рецепт уже в корзине', status=HTTP_400_BAD_REQUEST
-            )
-        shopping_cart_obj = ShoppingCart.objects.filter(
-            user=request.user, recipe=recipe
-        )
-        if not shopping_cart_obj.exists():
-            return Response(status=HTTP_400_BAD_REQUEST)
-        shopping_cart_obj.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+            return self.add_to_base(request, ShoppingCart, pk)
+        return self.delete_from_base(request.user, ShoppingCart, pk)
 
     @action(
         methods=('get',),
