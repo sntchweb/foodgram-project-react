@@ -74,7 +74,9 @@ class IngredientRecipeCreateSerializer(ModelSerializer):
 
 
 class CreateRecipeSerializer(ModelSerializer):
-    ingredients = IngredientRecipeCreateSerializer(many=True, source='ingredient')
+    ingredients = IngredientRecipeCreateSerializer(
+        many=True, source='ingredient'
+    )
     author = UserSerializer(read_only=True)
     tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
     image = Base64ImageField(required=True)
