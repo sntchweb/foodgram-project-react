@@ -59,6 +59,7 @@ class Subscription(Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        ordering = ('-author_id',)
         constraints = [
             UniqueConstraint(
                 fields=['user', 'author'],

@@ -2,9 +2,12 @@ from django.db.models import (CASCADE, CharField, DateTimeField,
                               ForeignKey, ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
+
+MIN_VALUE = 1
+MAX_VALUE = 32_000
 
 
 class Tag(Model):
@@ -49,7 +52,7 @@ class Ingredient(Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        ordering = ('id',)
+        ordering = ('name',)
 
     def __str__(self) -> str:
         return self.name
@@ -87,9 +90,16 @@ class Recipe(Model):
     )
     cooking_time = PositiveSmallIntegerField(
         verbose_name='Время готовки',
-        validators=[MinValueValidator(
-            1, message='Время готовки не может быть меньше 1 минуты'
-        )]
+        validators=[
+            MinValueValidator(
+                MIN_VALUE,
+                message='Время готовки не может быть меньше 1 минуты'
+            ),
+            MaxValueValidator(
+                MAX_VALUE,
+                message='Время готовки не может быть больше 32 000 минут'
+            )
+        ]
     )
     pub_date = DateTimeField(
         verbose_name='Дата публикации',
@@ -130,6 +140,7 @@ class FavoriteRecipe(Model):
     class Meta:
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+        ordering = ('recipe_id',)
         constraints = [
             UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -160,7 +171,7 @@ class ShoppingCart(Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
-        ordering = ('id',)
+        ordering = ('recipe_id',)
 
     def __str__(self) -> str:
         return f'{self.recipe}'
@@ -183,6 +194,7 @@ class TagsRecipe(Model):
     class Meta:
         verbose_name = 'Тег рецепта'
         verbose_name_plural = 'Теги рецепта'
+        ordering = ('recipe__name',)
 
     def __str__(self) -> str:
         return f'{self.tag}'
@@ -205,15 +217,22 @@ class IngredientRecipe(Model):
     )
     amount = PositiveSmallIntegerField(
         verbose_name='Количество',
-        validators=[MinValueValidator(
-            1, message='Количество ингридиентов не может быть меньше 1'
-        )]
+        validators=[
+            MinValueValidator(
+                MIN_VALUE,
+                message='Количество ингредиентов не может быть меньше 1'
+            ),
+            MaxValueValidator(
+                MAX_VALUE,
+                message='Количество ингредиентов не может быть больше 32 000'
+            )
+        ]
     )
 
     class Meta:
         verbose_name = 'Ингридиент в рецепте'
         verbose_name_plural = 'Ингридиенты в рецепте'
-        # ordering = ('ingredient__name',)
+        ordering = ('ingredient__name',)
 
     def __str__(self) -> str:
         return f'{self.ingredient} в {self.recipe}: {self.amount}'

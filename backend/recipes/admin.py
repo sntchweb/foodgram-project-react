@@ -12,6 +12,11 @@ class TagAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+class IngredientRecipeInline(admin.StackedInline):
+    model = IngredientRecipe
+    min_num = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -19,6 +24,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     search_fields = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
+    inlines = (IngredientRecipeInline,)
 
     def recipe_added_to_favorite(self, obj):
         return obj.favorites.count()
