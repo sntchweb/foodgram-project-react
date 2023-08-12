@@ -2,6 +2,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
                                    HTTP_400_BAD_REQUEST)
 
+from api.filters import RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (CreateRecipeSerializer, FavoriteRecipeSerializer,
                              IngredientSerializer, ReadRecipeSerializer,
@@ -25,14 +27,13 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     pagination_class = CustomPagination
+    filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH'):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
-
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
 
     def add_to_base(self, request, model, pk):
         recipe = get_object_or_404(Recipe, pk=pk)

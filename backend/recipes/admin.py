@@ -17,6 +17,11 @@ class IngredientRecipeInline(admin.StackedInline):
     min_num = 1
 
 
+class TagsRecipeInline(admin.StackedInline):
+    model = TagsRecipe
+    min_num = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -24,7 +29,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     search_fields = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
-    inlines = (IngredientRecipeInline,)
+    inlines = (IngredientRecipeInline, TagsRecipeInline)
 
     def recipe_added_to_favorite(self, obj):
         return obj.favorites.count()
