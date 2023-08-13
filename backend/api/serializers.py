@@ -17,7 +17,6 @@ MAX_VALUE = 32_000
 
 class UserRegistrationSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
-
         model = User
         fields = ('email', 'username', 'first_name', 'last_name', 'password')
 
@@ -123,12 +122,14 @@ class CreateRecipeSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredient')
+        instance = super().update(instance, validated_data)
         instance.tags.clear()
         instance.ingredient.clear()
         instance.name = validated_data.get('name')
-        instance.image = validated_data.get('image')
         instance.text = validated_data.get('text')
         instance.cooking_time = validated_data.get('cooking_time')
+        if validated_data.get('image') is not None:
+            instance.image = validated_data.pop('image')
         instance.save()
         IngredientRecipe.objects.bulk_create(
             [
@@ -188,15 +189,23 @@ class FavoriteRecipeSerializer(ModelSerializer):
 
 
 class SubscribeSerializer(ModelSerializer):
-    author = UserSerializer()
+    id = PrimaryKeyRelatedField(source='author.id', read_only=True)
+    first_name = CharField(source='author.first_name', read_only=True)
+    last_name = CharField(source='author.last_name', read_only=True)
+    email = CharField(source='author.email', read_only=True)
     recipes = FavoriteRecipeSerializer(
         many=True, source='author.recipes', read_only=True
     )
     recipes_count = SerializerMethodField()
+    is_subscribed = SerializerMethodField()
 
     class Meta:
-        model = Subscription
-        fields = ('author', 'recipes', 'recipes_count')
+        model = User
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count'
+        )
+        read_only_fields = ('email', 'username', 'first_name', 'last_name')
         validators = [
             UniqueTogetherValidator(
                 queryset=Subscription.objects.all(),
@@ -206,9 +215,15 @@ class SubscribeSerializer(ModelSerializer):
         ]
 
     def validate(self, data):
-        if data.get('user') == data.get('author'):
+        if self.context.get('request').user == data.get('author'):
             raise ValidationError('Нельзя подписаться на самого себя!')
         return data
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return obj.author.following.exists()
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()

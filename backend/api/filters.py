@@ -1,4 +1,6 @@
-from django_filters.rest_framework import FilterSet, ModelMultipleChoiceFilter, NumberFilter
+from django_filters.rest_framework import (FilterSet,
+                                           ModelMultipleChoiceFilter,
+                                           NumberFilter)
 
 from recipes.models import Recipe, Tag
 
@@ -17,7 +19,7 @@ class RecipeFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'is_in_shopping_cart', 'is_favorited', 'author')
+        fields = ('tags', 'author', 'is_in_shopping_cart', 'is_favorited')
 
     def is_favorited_filter(self, queryset, name, value):
         if not value:
