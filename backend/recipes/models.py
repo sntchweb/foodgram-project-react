@@ -3,7 +3,6 @@ from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
-
 from users.models import User
 
 MIN_VALUE = 1
