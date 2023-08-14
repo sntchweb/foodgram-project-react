@@ -1,8 +1,8 @@
-from django.db.models import (CASCADE, CharField, DateTimeField,
-                              ForeignKey, ImageField, ManyToManyField, Model,
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
+                              ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, SlugField, TextField,
                               UniqueConstraint)
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
 
