@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, IngredientRecipe, Recipe, Tag
+from recipes.models import Ingredient, IngredientRecipe, Recipe, Tag, FavoriteRecipe, ShoppingCart
 from rest_framework.serializers import (CharField, IntegerField,
                                         ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
@@ -175,10 +175,20 @@ class ReadRecipeSerializer(ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        return obj.favorites.exists()
+        request = self.context.get('request')
+        if request:
+            if not request.user.is_authenticated:
+                return False
+            return FavoriteRecipe.objects.filter(
+                user=request.user, recipe=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return obj.shop_cart.exists()
+        request = self.context.get('request')
+        if request:
+            if not request.user.is_authenticated:
+                return False
+            return ShoppingCart.objects.filter(
+                user=request.user, recipe=obj.id).exists()
 
 
 class FavoriteRecipeSerializer(ModelSerializer):
