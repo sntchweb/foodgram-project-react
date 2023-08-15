@@ -66,4 +66,3 @@ wcwidth==0.2.6
 webcolors==1.13
 xlrd==2.0.1
 xlwt==1.3.0
-flake8-isort==6.0.0
