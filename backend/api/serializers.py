@@ -45,7 +45,7 @@ class UserSerializer(ModelSerializer):
         user = self.context.get('request').user
         if not user.is_authenticated:
             return False
-        return obj.following.exists()
+        return user.follower.filter(author=obj.id).exists()
 
 
 class TagSerializer(ModelSerializer):
@@ -100,14 +100,7 @@ class CreateRecipeSerializer(ModelSerializer):
             )
         return data
 
-    def create(self, validated_data):
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredient')
-        recipe = Recipe.objects.create(
-            author=self.context.get('request').user,
-            **validated_data
-        )
-        recipe.save()
+    def ingredient_recipe_bulk_create(self, ingredients, recipe):
         IngredientRecipe.objects.bulk_create(
             [
                 IngredientRecipe(
@@ -117,6 +110,16 @@ class CreateRecipeSerializer(ModelSerializer):
                 ) for ingredient in ingredients
             ]
         )
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredient')
+        recipe = Recipe.objects.create(
+            author=self.context.get('request').user,
+            **validated_data
+        )
+        recipe.save()
+        self.ingredient_recipe_bulk_create(ingredients, recipe)
         recipe.tags.set(tags)
         return recipe
 
@@ -132,15 +135,7 @@ class CreateRecipeSerializer(ModelSerializer):
         if validated_data.get('image') is not None:
             instance.image = validated_data.pop('image')
         instance.save()
-        IngredientRecipe.objects.bulk_create(
-            [
-                IngredientRecipe(
-                    recipe=instance,
-                    ingredient=ingredient.get('id'),
-                    amount=ingredient.get('amount')
-                ) for ingredient in ingredients
-            ]
-        )
+        self.ingredient_recipe_bulk_create(ingredients, instance)
         instance.tags.set(tags)
         return instance
 
@@ -177,20 +172,16 @@ class ReadRecipeSerializer(ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        if request:
-            if not request.user.is_authenticated:
-                return False
-            return FavoriteRecipe.objects.filter(
-                user=request.user, recipe=obj.id).exists()
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return user.favorites.filter(recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if request:
-            if not request.user.is_authenticated:
-                return False
-            return ShoppingCart.objects.filter(
-                user=request.user, recipe=obj.id).exists()
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        return user.shop_cart.filter(recipe=obj).exists()
 
 
 class FavoriteRecipeSerializer(ModelSerializer):
@@ -234,7 +225,7 @@ class SubscribeSerializer(ModelSerializer):
         user = self.context.get('request').user
         if not user.is_authenticated:
             return False
-        return obj.author.following.exists()
+        return user.follower.filter(author=obj.id).exists()
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()
