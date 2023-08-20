@@ -1,20 +1,3 @@
-
-```
-http://foodgrartem.hopto.org/
-
-superuser
-email: artem21380@mail.ru
-password: arteml21380!
-
-user1
-email: artemnewtest@mail.ru
-password: dasafdpo@!
-
-user2
-email: test_user_name@mail.ru
-password: dasafdpo@!
-```
-
 # Foodgram - проект для публикации рецептов.
 ## Описание
 «Foodgram» - это онлайн-сервис, где пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в «Избранное», а также скачивать список продуктов, необходимых для приготовления одного или нескольких блюд.
@@ -44,15 +27,16 @@ DB_HOST=db
 DB_PORT=5432
 ```
 * Откройте терминал и запустите сборку docker-контейнеров командой:  
-`sudo docker-compose up -d`.    
+`sudo docker-compose up -d`.  
 * Примените миграции:  
 `sudo docker compose -f docker-compose.yml exec backend python manage.py migrate`  
 * Соберите и скопируйте статику:  
 `sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic`  
 `sudo docker compose -f docker-compose.yml exec backend cp -r /app/collected_static/. /static/static/`
 
-Проект будет доступен по адресу: http://localhost:8000/  
-Для загрузки всех ингредиентов в базу воспользуйтесь модулем `Import` в разделе ингредиентов админки.
+Проект будет доступен по адресу: `http://localhost:8000/`  
+* Для загрузки всех ингредиентов в базу воспользуйтесь модулем `Import` в разделе ингредиентов админки или командой:  
+`sudo docker compose -f docker-compose.yml exec backend python manage.py load_ingredients`
 
 * Для создания суперпользователя воспользуйтесь командой:
 `sudo docker compose -f docker-compose.yml exec backend python manage.py createsuperuser`

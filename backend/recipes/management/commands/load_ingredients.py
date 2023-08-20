@@ -1,16 +1,20 @@
 import csv
+import os
 
 from django.core.management import BaseCommand
 
 from recipes.models import Ingredient
 
+PROJECT_PATH = os.path.abspath(os.path.dirname(__name__))
+
 
 class Command(BaseCommand):
+    """Команда для загрузки ингредиентов."""
 
     def handle(self, *args, **kwargs):
         try:
             with open(
-                'G:\\Dev\\foodgram-project-react\\data\\ingredients.csv',
+                f'{PROJECT_PATH}/../data/ingredients.csv',
                 'r',
                 encoding='utf-8'
             ) as file:
@@ -22,6 +26,6 @@ class Command(BaseCommand):
                     ) for line in reader
                 )
         except Exception as error:
-            print(error)
+            self.stdout.write(self.style.ERROR(error))
         else:
-            print('Загрузка данных в таблицу завершена успешно.')
+            self.stdout.write(self.style.SUCCESS('Ингредиенты загружены.'))

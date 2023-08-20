@@ -24,6 +24,8 @@ from users.models import Subscription
 
 
 class RecipeViewSet(ModelViewSet):
+    """Вьюсет рецептов."""
+
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     pagination_class = CustomPagination
@@ -31,11 +33,15 @@ class RecipeViewSet(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
+        """Возвращает сериализатор в зависимости от типа метода."""
+
         if self.request.method in ('POST', 'PATCH'):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
 
     def add_to_base(self, request, model, pk):
+        """Добавление рецепта в базу."""
+
         recipe = get_object_or_404(Recipe, pk=pk)
         _, created = model.objects.get_or_create(
             recipe=recipe, user=request.user
@@ -49,6 +55,8 @@ class RecipeViewSet(ModelViewSet):
         return Response(status=HTTP_400_BAD_REQUEST)
 
     def delete_from_base(self, user, model, pk):
+        """Удаление рецепта из базы."""
+
         recipe = get_object_or_404(Recipe, pk=pk)
         databse_obj = model.objects.filter(
             user=user, recipe=recipe
@@ -65,6 +73,8 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
+        """Экшон для добавления/удаления рецепта из избранного."""
+
         if request.method == 'POST':
             return self.add_to_base(request, FavoriteRecipe, pk)
         return self.delete_from_base(request.user, FavoriteRecipe, pk)
@@ -76,6 +86,8 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
+        """Экшон для добавления/удаления рецепта из списка покупок."""
+
         if request.method == 'POST':
             return self.add_to_base(request, ShoppingCart, pk)
         return self.delete_from_base(request.user, ShoppingCart, pk)
@@ -87,6 +99,8 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
+        """Экшон для скачивания списка покупок."""
+
         ingredients = IngredientRecipe.objects.filter(
             recipe__shop_cart__user=request.user
         ).values(
@@ -103,6 +117,8 @@ class RecipeViewSet(ModelViewSet):
 
 
 class CustomUserViewSet(UserViewSet):
+    """Вьюсет пользователя."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = CustomPagination
@@ -114,6 +130,8 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
+        """Экшон для просмотра подписок."""
+
         subs_quryset = Subscription.objects.filter(user=request.user)
         page = self.paginate_queryset(subs_quryset)
         serializer = SubscribeSerializer(
@@ -130,6 +148,8 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id=None):
+        """Экшон для добавления/удаления подписки."""
+
         follow_obj = Subscription.objects.filter(
             user=request.user, author=get_object_or_404(User, pk=id)
         )
@@ -150,6 +170,8 @@ class CustomUserViewSet(UserViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    """Вьюсет тегов."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -157,12 +179,16 @@ class TagViewSet(ModelViewSet):
 
 
 class IngredientsViewSet(ModelViewSet):
+    """Вьюсет ингредиентов."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
 
     def get_queryset(self):
+        """Фильтр по названию ингредиента."""
+
         queryset = Ingredient.objects.all()
         name = self.request.query_params.get('name')
         if name is not None:

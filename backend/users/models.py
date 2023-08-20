@@ -4,6 +4,8 @@ from django.db.models import (CASCADE, CharField, EmailField, ForeignKey,
 
 
 class User(AbstractUser):
+    """Модель пользователя."""
+
     email = EmailField(
         verbose_name='Электронная почта',
         max_length=254,

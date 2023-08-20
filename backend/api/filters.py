@@ -6,6 +6,8 @@ from recipes.models import Recipe, Tag
 
 
 class RecipeFilter(FilterSet):
+    """Фильтр рецептов."""
+
     tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
