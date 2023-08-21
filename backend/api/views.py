@@ -73,7 +73,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
-        """Экшон для добавления/удаления рецепта из избранного."""
+        """Экшн для добавления/удаления рецепта из избранного."""
 
         if request.method == 'POST':
             return self.add_to_base(request, FavoriteRecipe, pk)
@@ -86,7 +86,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
-        """Экшон для добавления/удаления рецепта из списка покупок."""
+        """Экшн для добавления/удаления рецепта из списка покупок."""
 
         if request.method == 'POST':
             return self.add_to_base(request, ShoppingCart, pk)
@@ -99,7 +99,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        """Экшон для скачивания списка покупок."""
+        """Экшн для скачивания списка покупок."""
 
         ingredients = IngredientRecipe.objects.filter(
             recipe__shop_cart__user=request.user
@@ -130,7 +130,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
-        """Экшон для просмотра подписок."""
+        """Экшн для просмотра подписок."""
 
         subs_quryset = Subscription.objects.filter(user=request.user)
         page = self.paginate_queryset(subs_quryset)
@@ -148,7 +148,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id=None):
-        """Экшон для добавления/удаления подписки."""
+        """Экшн для добавления/удаления подписки."""
 
         follow_obj = Subscription.objects.filter(
             user=request.user, author=get_object_or_404(User, pk=id)
