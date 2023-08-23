@@ -121,23 +121,29 @@ class Recipe(Model):
         return self.name
 
 
-class FavoriteRecipe(Model):
-    """Модель избранных рецептов."""
+class FavoritesShopCart(Model):
+    """Абстрактная модель избранных рецептов и покупок."""
 
     user = ForeignKey(
         User,
         verbose_name='Пользователь',
-        related_name='favorites',
         on_delete=CASCADE
     )
     recipe = ForeignKey(
         Recipe,
         verbose_name='Рецепт',
-        related_name='favorites',
         on_delete=CASCADE
     )
 
     class Meta:
+        abstract = True
+
+
+class FavoriteRecipe(FavoritesShopCart):
+    """Модель избранных рецептов."""
+
+    class Meta:
+        default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
         ordering = ('recipe_id',)
@@ -152,26 +158,20 @@ class FavoriteRecipe(Model):
         return f'{self.recipe}'
 
 
-class ShoppingCart(Model):
+class ShoppingCart(FavoritesShopCart):
     """Модель списка покупок."""
 
-    user = ForeignKey(
-        User,
-        verbose_name='Пользователь',
-        on_delete=CASCADE,
-        related_name='shop_cart'
-    )
-    recipe = ForeignKey(
-        Recipe,
-        verbose_name='Рецепт',
-        on_delete=CASCADE,
-        related_name='shop_cart'
-    )
-
     class Meta:
+        default_related_name = 'shop_cart'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
         ordering = ('recipe_id',)
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart_recipe'
+            )
+        ]
 
     def __str__(self) -> str:
         return f'{self.recipe}'
