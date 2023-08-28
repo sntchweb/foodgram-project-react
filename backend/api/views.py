@@ -26,7 +26,9 @@ from users.models import Subscription
 class RecipeViewSet(ModelViewSet):
     """Вьюсет рецептов."""
 
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.prefetch_related(
+        'recipe__ingredient', 'tags'
+    ).select_related('author').order_by('-pub_date')
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     pagination_class = CustomPagination
     filterset_class = RecipeFilter

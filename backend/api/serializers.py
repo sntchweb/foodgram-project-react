@@ -234,13 +234,12 @@ class SubscribeSerializer(ModelSerializer):
         many=True, source='author.recipes', read_only=True
     )
     recipes_count = SerializerMethodField()
-    is_subscribed = SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count'
+            'recipes', 'recipes_count'
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name')
         validators = [
@@ -255,14 +254,6 @@ class SubscribeSerializer(ModelSerializer):
         if self.context.get('request').user == data.get('author'):
             raise ValidationError('Нельзя подписаться на самого себя!')
         return data
-
-    def get_is_subscribed(self, obj):
-        """Получение информации о подписке."""
-
-        user = self.context.get('request').user
-        if not user.is_authenticated:
-            return False
-        return user.follower.filter(author=obj.id).exists()
 
     def get_recipes_count(self, obj):
         """Получение количества рецептов у пользователя."""
