@@ -51,5 +51,5 @@ DB_PORT=5432
 * [Nginx](https://nginx.org/ru/)
 * [Gunicorn](https://gunicorn.org/)
 
-## Автор 
+## Автор:
 Лашин Артём
