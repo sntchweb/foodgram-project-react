@@ -6,6 +6,7 @@ from django.core.management import BaseCommand
 from recipes.models import Ingredient
 
 PROJECT_PATH = os.path.abspath(os.path.dirname(__name__))
+COMPLETE_LOAD_INGREDIENTS_MSG = 'Ингредиенты загружены.'
 
 
 class Command(BaseCommand):
@@ -28,4 +29,6 @@ class Command(BaseCommand):
         except Exception as error:
             self.stdout.write(self.style.ERROR(error))
         else:
-            self.stdout.write(self.style.SUCCESS('Ингредиенты загружены.'))
+            self.stdout.write(
+                self.style.SUCCESS(COMPLETE_LOAD_INGREDIENTS_MSG)
+            )

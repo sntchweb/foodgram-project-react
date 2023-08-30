@@ -233,7 +233,7 @@ class SubscribeSerializer(ModelSerializer):
     recipes = FavoriteRecipeSerializer(
         many=True, source='author.recipes', read_only=True
     )
-    recipes_count = SerializerMethodField()
+    recipes_count = IntegerField(read_only=True)
 
     class Meta:
         model = User
@@ -254,8 +254,3 @@ class SubscribeSerializer(ModelSerializer):
         if self.context.get('request').user == data.get('author'):
             raise ValidationError('Нельзя подписаться на самого себя!')
         return data
-
-    def get_recipes_count(self, obj):
-        """Получение количества рецептов у пользователя."""
-
-        return obj.author.recipes.count()

@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -134,7 +134,9 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         """Экшн для просмотра подписок."""
 
-        subs_quryset = Subscription.objects.filter(user=request.user)
+        subs_quryset = Subscription.objects.filter(user=request.user).annotate(
+            recipes_count=Count('author__recipes')
+        ).order_by('-author_id',)
         page = self.paginate_queryset(subs_quryset)
         serializer = SubscribeSerializer(
             page,
