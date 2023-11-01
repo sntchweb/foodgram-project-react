@@ -14,7 +14,7 @@
 
 ## Как развернуть проект:
 
-* Установите Docker и Docker-Compose.
+* Установите Docker desktop.
 * Клонируйте репозиторий командой:
 `git clone git@github.com:sntchweb/foodgram-project-react.git`
 * Создайте в директории /foodgram-project-react/ файл `.env` с переменными окружения.
